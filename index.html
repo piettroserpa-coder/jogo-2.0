@@ -2,17 +2,20 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>One Piece: Grand Line Run</title>
+    <title>One Piece: Grand Adventure JS</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <div id="ui">
-            <div class="stat">Capitão: <span id="player-name">Luffy</span></div>
-            <div class="stat">Recompensa: ฿ <span id="score">0</span></div>
+            <div class="health-bar"><div id="player-hp"></div></div>
+            <div id="score">Belly: 0</div>
         </div>
-        <canvas id="gameCanvas"></canvas>
-        <div id="instructions">Pressione **ESPAÇO** para pular!</div>
+        
+        <div id="luffy" class="character"></div>
+        <div id="enemy" class="character enemy"></div>
+        
+        <div id="controls">Use as setas para mover e <span>Espaço</span> para dar o Gomu Gomu no Pistol!</div>
     </div>
     <script src="script.js"></script>
 </body>
