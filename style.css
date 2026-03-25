@@ -1,0 +1,79 @@
+body {
+    margin: 0;
+    background: #1a4d6e; /* Cor do oceano */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    border: 5px solid #f2d06b; /* Dourado */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+#ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    text-shadow: 2px 2px #000;
+    font-weight: bold;
+    z-index: 10;
+}
+
+canvas {
+    display: block;
+    background: linear-gradient(to bottom, #87CEEB 0%, #1a4d6e 100%);
+}
+
+#instructions {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: #f2d06b;
+    font-size: 0.8rem;
+}body {
+    margin: 0;
+    background: #1a4d6e; /* Cor do oceano */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+    overflow: hidden;
+}
+
+#game-container {
+    position: relative;
+    border: 5px solid #f2d06b; /* Dourado */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+#ui {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    text-shadow: 2px 2px #000;
+    font-weight: bold;
+    z-index: 10;
+}
+
+canvas {
+    display: block;
+    background: linear-gradient(to bottom, #87CEEB 0%, #1a4d6e 100%);
+}
+
+#instructions {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: #f2d06b;
+    font-size: 0.8rem;
+}
