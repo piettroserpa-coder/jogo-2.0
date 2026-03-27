@@ -2,232 +2,47 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>One Piece: Grand Line Gacha & Battle</title>
-    <style>
-        :root {
-            --op-gold: #f1c40f;
-            --op-blue: #0077be;
-            --op-paper: #e4d5b7;
-        }
-
-        body {
-            margin: 0;
-            background: #121212;
-            font-family: 'Verdana', sans-serif;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* Status Bar */
-        #status-bar {
-            width: 100%;
-            background: #000;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            border-bottom: 4px solid var(--op-gold);
-            position: sticky; top: 0; z-index: 100;
-        }
-
-        .stat-item { font-size: 1.4rem; color: var(--op-gold); font-weight: bold; }
-
-        /* Wanted Card */
-        #gacha-area { margin-top: 30px; text-align: center; }
-        
-        .wanted-card {
-            width: 260px;
-            height: 380px;
-            background: var(--op-paper);
-            border: 10px solid #8b5a2b;
-            color: #3d2b1f;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            margin: 0 auto;
-        }
-
-        .wanted-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border: 3px solid #3d2b1f;
-        }
-
-        .wanted-card h2 { margin: 10px 0; font-family: serif; text-transform: uppercase; }
-
-        /* Botões */
-        .btn-container { margin-top: 25px; display: flex; gap: 15px; }
-        
-        button {
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            transition: 0.2s;
-        }
-
-        #btn-pull { background: var(--op-gold); color: #000; }
-        #btn-nav { background: var(--op-blue); color: #fff; }
-        button:hover { transform: translateY(-3px); opacity: 0.9; }
-        button:disabled { background: #555; cursor: not-allowed; }
-
-        /* Battle Overlay */
-        #battle-log {
-            margin-top: 20px;
-            width: 80%;
-            max-width: 500px;
-            background: #222;
-            padding: 10px;
-            border-radius: 5px;
-            height: 100px;
-            overflow-y: auto;
-            border-left: 5px solid var(--op-blue);
-            font-size: 0.9rem;
-        }
-
-        /* Crew Grid */
-        #crew-section { width: 90%; margin-top: 40px; }
-        .crew-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-        .crew-item {
-            background: #1e1e1e;
-            padding: 10px;
-            border: 2px solid #444;
-            text-align: center;
-        }
-        .crew-item img { width: 100%; height: 100px; object-fit: cover; border-radius: 4px; }
-    </style>
+    <title>One Piece: Black Ocean JS</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="game-container">
+        <header>
+            <div class="stat">💰 <span id="money">1000</span></div>
+            <div class="stat">⚓ Nível: <span id="player-lvl">1</span></div>
+            <div class="stat">🔥 Poder: <span id="total-power">0</span></div>
+        </header>
 
-    <div id="status-bar">
-        <div class="stat-item">฿ <span id="berries">2000</span></div>
-        <div class="stat-item">Poder Total: <span id="power">0</span></div>
-    </div>
-
-    <div id="gacha-area">
-        <div class="wanted-card" id="main-card">
-            <p style="margin:0; font-weight:bold">WANTED</p>
-            <img id="display-img" src="https://i.imgur.com/8mY8aD6.png" alt="Símbolo Pirata">
-            <h2 id="display-name">DEAD OR ALIVE</h2>
-            <p id="display-rarity" style="font-weight:bold; color: #8b5a2b">---</p>
-        </div>
-
-        <div class="btn-container">
-            <button id="btn-pull">RECRUTAR (500 ฿)</button>
-            <button id="btn-nav">NAVEGAR NO MAR</button>
-        </div>
-    </div>
-
-    <div id="battle-log">Bem-vindo à Grand Line! Recrute piratas e parta para a batalha.</div>
-
-    <div id="crew-section">
-        <h3>Sua Frota Pirata</h3>
-        <div class="crew-grid" id="crew-grid"></div>
-    </div>
-
-    <script>
-        // Banco de Dados com Fotos Reais (URLs de exemplo)
-        const characters = [
-            { name: "Luffy", img: "https://i.imgur.com/vHInCId.jpg", rarity: "SSR", power: 900, chance: 5 },
-            { name: "Zoro", img: "https://i.imgur.com/B9Oa2vV.jpg", rarity: "SSR", power: 850, chance: 7 },
-            { name: "Sanji", img: "https://i.imgur.com/uVfV6V5.jpg", rarity: "SR", power: 700, chance: 15 },
-            { name: "Nami", img: "https://i.imgur.com/iCThMvS.jpg", rarity: "SR", power: 500, chance: 20 },
-            { name: "Usopp", img: "https://i.imgur.com/Yh3Dxlh.jpg", rarity: "R", power: 300, chance: 25 },
-            { name: "Buggy", img: "https://i.imgur.com/7Yl6Gid.jpg", rarity: "R", power: 250, chance: 28 }
-        ];
-
-        const enemies = [
-            { name: "Marinheiros", power: 400, reward: 300 },
-            { name: "Piratas de Alvida", power: 800, reward: 700 },
-            { name: "CP9", power: 2500, reward: 2000 },
-            { name: "Kaido", power: 8000, reward: 10000 }
-        ];
-
-        let state = { berries: 2000, totalPower: 0, crew: [] };
-
-        // Elementos
-        const log = document.getElementById('battle-log');
-        const berryTxt = document.getElementById('berries');
-        const powerTxt = document.getElementById('power');
-
-        // Lógica de Recrutamento
-        document.getElementById('btn-pull').onclick = () => {
-            if (state.berries < 500) return addLog("Você não tem Berries suficientes!");
-            
-            state.berries -= 500;
-            const pulled = pull();
-            state.crew.push(pulled);
-            state.totalPower += pulled.power;
-            
-            updateUI();
-            showPulled(pulled);
-            addLog(`VOCÊ RECRUTOU ${pulled.name.toUpperCase()}!`);
-        };
-
-        // Lógica de Navegação/Batalha
-        document.getElementById('btn-nav').onclick = () => {
-            if (state.crew.length === 0) return addLog("Sua tripulação está vazia! Recrute alguém primeiro.");
-            
-            const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-            addLog(`🚢 Navegando... Encontramos: ${enemy.name}!`);
-
-            setTimeout(() => {
-                if (state.totalPower >= enemy.power) {
-                    state.berries += enemy.reward;
-                    addLog(`🏆 VITÓRIA! Você derrotou ${enemy.name} e saqueou ${enemy.reward} Berries!`);
-                } else {
-                    const lost = Math.floor(state.berries * 0.2);
-                    state.berries -= lost;
-                    addLog(`💀 DERROTA! ${enemy.name} era muito forte. Você perdeu ${lost} Berries.`);
-                }
-                updateUI();
-            }, 800);
-        };
-
-        function pull() {
-            const rand = Math.random() * 100;
-            let acc = 0;
-            for (let c of characters) {
-                acc += c.chance;
-                if (rand <= acc) return c;
-            }
-            return characters[characters.length - 1];
-        }
-
-        function updateUI() {
-            berryTxt.innerText = state.berries;
-            powerTxt.innerText = state.totalPower;
-            
-            const grid = document.getElementById('crew-grid');
-            grid.innerHTML = state.crew.map(c => `
-                <div class="crew-item">
-                    <img src="${c.img}">
-                    <div><b>${c.name}</b></div>
-                    <small>Poder: ${c.power}</small>
+        <main>
+            <section id="gacha-panel">
+                <div class="wanted-poster" id="poster">
+                    <div class="poster-inner">
+                        <img id="char-img" src="https://images.unsplash.com/photo-1518531966227-1aa3149723f0?q=80&w=200&h=250&auto=format&fit=crop" alt="Personagem">
+                        <h2 id="char-name">Sorteie um Nakama</h2>
+                        <p id="char-rarity">-</p>
+                    </div>
                 </div>
-            `).join('');
-        }
+                <button onclick="pullCharacter()" id="btn-pull">RECRUTAR (500 ฿)</button>
+            </section>
 
-        function showPulled(c) {
-            document.getElementById('display-img').src = c.img;
-            document.getElementById('display-name').innerText = c.name;
-            document.getElementById('display-rarity').innerText = c.rarity;
-        }
+            <section id="action-panel">
+                <div id="location-info">
+                    <h3>📍 Mar de East Blue</h3>
+                    <p id="event-text">Pronto para zarpar?</p>
+                </div>
+                <div class="battle-buttons">
+                    <button onclick="navigate('low')" class="btn-nav">Explorar Ilha Próxima</button>
+                    <button onclick="navigate('high')" class="btn-nav danger">Ir para a Grand Line</button>
+                </div>
+                <div id="log-box"></div>
+            </section>
+        </main>
 
-        function addLog(msg) {
-            const p = document.createElement('p');
-            p.innerText = `> ${msg}`;
-            log.prepend(p);
-        }
-    </script>
+        <footer id="crew-list">
+            <h3>Sua Tripulação</h3>
+            <div id="crew-grid"></div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
