@@ -1,13 +1,209 @@
-<div class="grand-line-container">
-    <h1 class="title">RECRUTAMENTO PIRATA</h1>
-    
-    <div id="wanted-poster">
-        <div class="poster-inner">
-            <div id="atleta-img" class="char-emoji">☠️</div>
-            <h2 id="atleta-nome">QUEM SERÁ?</h2>
-            <p id="atleta-desc">Clique no botão para recrutar um aliado para sua tripulação!</p>
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Piece: Grand Line Gacha</title>
+    <style>
+        :root {
+            --op-gold: #f1c40f;
+            --op-dark: #1a1a1a;
+            --op-paper: #e4d5b7;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--op-dark);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header e Status */
+        #header {
+            width: 100%;
+            background: #000;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 3px solid var(--op-gold);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .currency { font-size: 1.5rem; color: var(--op-gold); font-weight: bold; }
+
+        /* Area do Cartaz (Gacha) */
+        #gacha-container {
+            margin-top: 50px;
+            perspective: 1000px;
+        }
+
+        .wanted-card {
+            width: 280px;
+            height: 400px;
+            background: var(--op-paper);
+            border: 12px solid #8b5a2b;
+            border-radius: 5px;
+            color: #3d2b1f;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            transform: rotateY(0deg);
+            transition: transform 0.6s ease;
+        }
+
+        .wanted-card h2 { margin: 10px 0; font-size: 1.8rem; text-transform: uppercase; border-bottom: 2px solid #3d2b1f; }
+        .char-img { font-size: 100px; margin: 20px 0; }
+        .rarity { font-weight: bold; padding: 5px 15px; border-radius: 20px; margin-top: 10px; }
+        
+        /* Cores de Raridade */
+        .rarity-ssr { background: #ff4500; color: white; box-shadow: 0 0 10px #ff4500; }
+        .rarity-sr { background: #9b59b6; color: white; }
+        .rarity-r { background: #3498db; color: white; }
+
+        /* Botões */
+        .actions { margin-top: 30px; display: flex; gap: 20px; }
+        button {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+        #btn-pull { background: var(--op-gold); color: black; }
+        #btn-pull:hover { transform: scale(1.05); background: #f39c12; }
+        
+        /* Lista da Tripulação */
+        #crew-section {
+            width: 90%;
+            max-width: 800px;
+            margin-top: 50px;
+            padding-bottom: 50px;
+        }
+        .crew-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .crew-item {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border: 1px solid var(--op-gold);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <div class="currency">💰 <span id="berries">5000</span> Berries</div>
+        <div class="currency">⚓ Tripulação: <span id="crew-count">0</span></div>
+    </div>
+
+    <div id="gacha-container">
+        <div class="wanted-card" id="display-card">
+            <p>WANTED</p>
+            <div class="char-img" id="char-icon">❓</div>
+            <h2 id="char-name">Recrutar?</h2>
+            <div id="char-rarity" class="rarity">---</div>
+            <p style="margin-top: 20px; font-weight: bold;">DEAD OR ALIVE</p>
         </div>
     </div>
 
-    <button id="btn-treinar">RECRUTAR NAKAMA!</button>
-</div>
+    <div class="actions">
+        <button id="btn-pull">RECRUTAR (500 ฿)</button>
+    </div>
+
+    <div id="crew-section">
+        <h3>Sua Tripulação Pirata</h3>
+        <div class="crew-grid" id="crew-grid">
+            </div>
+    </div>
+
+    <script>
+        // Banco de Dados de Personagens
+        const characters = [
+            { name: "Luffy", icon: "👒", rarity: "SSR", chance: 5 },
+            { name: "Zoro", icon: "⚔️", rarity: "SSR", chance: 5 },
+            { name: "Shanks", icon: "🍷", rarity: "SSR", chance: 2 },
+            { name: "Sanji", icon: "🍳", rarity: "SR", chance: 15 },
+            { name: "Nami", icon: "🍊", rarity: "SR", chance: 15 },
+            { name: "Robin", icon: "👁️", rarity: "SR", chance: 15 },
+            { name: "Usopp", icon: "🎯", rarity: "R", chance: 20 },
+            { name: "Chopper", icon: "🩺", rarity: "R", chance: 23 }
+        ];
+
+        let berries = 5000;
+        let myCrew = [];
+
+        const btnPull = document.getElementById('btn-pull');
+        const berryTxt = document.getElementById('berries');
+        const crewGrid = document.getElementById('crew-grid');
+        const crewCount = document.getElementById('crew-count');
+
+        const displayCard = document.getElementById('display-card');
+        const charIcon = document.getElementById('char-icon');
+        const charName = document.getElementById('char-name');
+        const charRarity = document.getElementById('char-rarity');
+
+        btnPull.addEventListener('click', () => {
+            if (berries < 500) {
+                alert("Você não tem Berries suficientes! Vá saquear alguns navios.");
+                return;
+            }
+
+            // Gasto de Berries
+            berries -= 500;
+            berryTxt.innerText = berries;
+
+            // Animação de Giro
+            displayCard.style.transform = "rotateY(360deg)";
+            
+            setTimeout(() => {
+                const pulled = pullCharacter();
+                updateDisplay(pulled);
+                addToCrew(pulled);
+                displayCard.style.transform = "rotateY(0deg)";
+            }, 300);
+        });
+
+        function pullCharacter() {
+            const rand = Math.random() * 100;
+            let cumulativeChance = 0;
+            
+            for (let char of characters) {
+                cumulativeChance += char.chance;
+                if (rand <= cumulativeChance) return char;
+            }
+            return characters[characters.length - 1]; // Fallback
+        }
+
+        function updateDisplay(char) {
+            charName.innerText = char.name;
+            charIcon.innerText = char.icon;
+            charRarity.innerText = char.rarity;
+            charRarity.className = `rarity rarity-${char.rarity.toLowerCase()}`;
+        }
+
+        function addToCrew(char) {
+            myCrew.push(char);
+            crewCount.innerText = myCrew.length;
+
+            const div = document.createElement('div');
+            div.className = 'crew-item';
+            div.innerHTML = `<div>${char.icon}</div><small>${char.name}</small>`;
+            crewGrid.appendChild(div);
+        }
+    </script>
+</body>
+</html>
